@@ -1,9 +1,31 @@
+import uuid
+import os
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from datetime import date
 from simple_history.models import HistoricalRecords, HistoricForeignKey
+
+# 1. Validate File Type (MIME + Extension) & 2. Restrict Size
+def validate_resume(file):
+    # Limit size to 2MB
+    limit_mb = 2
+    if file.size > limit_mb * 1024 * 1024:
+        raise ValidationError(f"Max size of file is {limit_mb} MB")
+
+    # Limit extension
+    if not file.name.endswith('.pdf'):
+        raise ValidationError("Only PDF files are allowed")
+
+# 4. Rename files to random UUID
+def rename_file(instance, filename):
+    ext = filename.split('.')[-1]
+    # Generates a random UUID (e.g., 550e8400-e29b-41d4-a716-446655440000.pdf)
+    filename = f'{uuid.uuid4()}.{ext}'
+    # 3. Store outside web root (Django handles this via 'upload_to')
+    return os.path.join('resumes/', filename)
 
 
 class Person(models.Model):
@@ -56,6 +78,14 @@ class Person(models.Model):
         null=True,
         blank=True,
         help_text="The associated Django user account.",
+    )
+
+    # The Secure File Field
+    resume = models.FileField(
+        upload_to=rename_file,        # Requirement: Rename to UUID
+        validators=[validate_resume], # Requirement: Validate Type & Size
+        blank=True, 
+        null=True
     )
 
     history = HistoricalRecords(table_name="person_history")

@@ -14,7 +14,6 @@ from people_management.filters import ContractFilter
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 
-
 # Person Views
 class ListPeople(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Person
@@ -37,7 +36,6 @@ class ViewPersonDetails(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
     context_object_name = "person"
     permission_required = "people_management.view_person"
 
-
 class ViewOwnPerson(LoginRequiredMixin, DetailView):
     model = Person
     template_name = "people_management/person_detail.html"
@@ -45,7 +43,6 @@ class ViewOwnPerson(LoginRequiredMixin, DetailView):
 
     def get_object(self):
         return get_object_or_404(Person, user=self.request.user)
-
 
 class CreateNewPerson(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Person
@@ -59,8 +56,7 @@ class CreateNewPerson(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     def form_invalid(self, form):
         messages.error(self.request, "Invalid submission error!")
-        return super().form_invalid(form)
-
+        return super().form_invalid(form) 
 
 class UpdatePerson(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Person
@@ -100,7 +96,6 @@ class ViewContractDetails(LoginRequiredMixin, PermissionRequiredMixin, DetailVie
     model = Contract
     context_object_name = "contract"
     permission_required = "people_management.view_contract"
-
 
 class CreateNewContract(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Contract

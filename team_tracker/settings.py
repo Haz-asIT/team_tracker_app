@@ -22,18 +22,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-secret-key")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+
 # ALLOWED HOSTS (split comma-separated string into a list)
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
+
 
 # Ensure CSRF_TRUSTED_ORIGINS is properly formatted
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "https://127.0.0.1").split(",")
 
 # Enforce session expiration on browser close
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = 1800
-SESSION_COOKIE_SECURE = True
-SESSION_SAVE_EVERY_REQUEST = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # Logout when window closes
+SESSION_COOKIE_AGE = 1800 # 30 minutes of inactivity
+SESSION_COOKIE_HTTPONLY = True # Mitigate XSS attacks
+SESSION_SAVE_EVERY_REQUEST = True # Reset session timer on each request
+#SESSION_COOKIE_SECURE = True # Ensure cookies are only sent over HTTPS
+#SESSION_COOKIE_SAMESITE = 'Lax'   # Prevents CSRF by restricting cross-site usage
 
+# CSRF Cookie Security 
+CSRF_COOKIE_HTTPONLY = True      # Prevents JavaScript from reading the CSRF token
+#CSRF_COOKIE_SECURE = True        # Only send CSRF token over HTTPS
+#CSRF_COOKIE_SAMESITE = 'Lax'     # Standard protection for CSRF cookies
 
 # Application definition
 INSTALLED_APPS = [
@@ -87,27 +95,35 @@ TEMPLATES = [
 WSGI_APPLICATION = "team_tracker.wsgi.application"
 
 # DATABASE CONFIGURATION (Uses DATABASE_URL from .env or falls back to SQLite)
-DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
+DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=False)}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 10,  # Increased from 8 to 10 for stronger security
+        }
+    },
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "en-ms"
+TIME_ZONE = "Asia/Kuala_Lumpur"
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Ensure STATICFILES_DIRS is empty in production (DEBUG=False)
 if DEBUG:

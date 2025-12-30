@@ -4,7 +4,7 @@
 <div class="container mt-5">
     <h2>{% if form.instance.pk %}Edit{% else %}New{% endif %} Person</h2>
     
-    <form method="POST" class="p-4 shadow-lg rounded bg-light mb-5" novalidate>
+    <form method="POST" enctype="multipart/form-data" class="p-4 shadow-lg rounded bg-light mb-5" novalidate>
         {% csrf_token %}
         
         {{ form.non_field_errors }}
@@ -21,6 +21,8 @@
                             </option>
                         {% endfor %}
                     </select>
+                {% elif field.name == "resume" %}
+                    <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control">
                 {% else %}
                     {{ field }}
                 {% endif %}

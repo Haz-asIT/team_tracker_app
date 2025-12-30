@@ -24,6 +24,7 @@ class PersonForm(forms.ModelForm):
             "date_of_birth",
             "role",
             "manager",
+            "resume",
         ]
         widgets = {
             "first_name": forms.TextInput(
@@ -43,6 +44,9 @@ class PersonForm(forms.ModelForm):
             ),
             "role": forms.Select(attrs={"class": "form-select"}),
             "manager": forms.Select(attrs={"class": "form-select"}),
+            "resume": forms.ClearableFileInput(
+                attrs={"class": "form-control"}
+            ),
         }
         error_messages = {
             "first_name": {

@@ -34,17 +34,34 @@
                         <span class="badge bg-danger">Inactive</span>
                     {% endif %}
                 </li>
-                <ul>
-                    {% for contract in person.contracts.all %}
-                      <li>
-                        <a href="{% url 'people_management:view_contract' contract.pk %}">
-                          Contract from {{ contract.contract_start }} to {{ contract.contract_end }}
+                
+                <li class="list-group-item">
+                    <strong>Resume:</strong>
+                    {% if person.resume %}
+                        <a href="{{ person.resume.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                            View/Download Resume (PDF)
                         </a>
-                      </li>
-                    {% empty %}
-                      <li>No contracts found.</li>
-                    {% endfor %}
-                  </ul>
+                        <div class="mt-1">
+                            <small class="text-muted">Secure ID: {{ person.resume.name }}</small>
+                        </div>
+                    {% else %}
+                        <span class="text-muted ms-2">No resume uploaded.</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item">
+                    <strong>Contracts:</strong>
+                    <ul class="mt-2">
+                        {% for contract in person.contracts.all %}
+                          <li>
+                            <a href="{% url 'people_management:view_contract' contract.pk %}">
+                              Contract from {{ contract.contract_start }} to {{ contract.contract_end }}
+                            </a>
+                          </li>
+                        {% empty %}
+                          <li>No contracts found.</li>
+                        {% endfor %}
+                    </ul>
+                </li>
             </ul>
 
             <div class="mt-3 pe-3">

@@ -37,7 +37,7 @@
                         {% for contract in request.user.person.contracts.all %}
                             <div class="contract">
                                 <p><strong>Job Title:</strong> {{ contract.job_title }}</p>
-                                <p><strong>Hourly Rate:</strong> £{{ contract.hourly_rate }}</p>
+                                <p><strong>Hourly Rate:</strong> RM {{ contract.hourly_rate }}</p>
                                 <p><strong>Contracted Hours:</strong> {{ contract.contracted_hours }} per week</p>
                                 <p><strong>Contract Start:</strong> {{ contract.contract_start }}</p>
                                 <p><strong>Contract End:</strong> {% if contract.contract_end %}{{ contract.contract_end }}{% else %}Ongoing{% endif %}</p>
