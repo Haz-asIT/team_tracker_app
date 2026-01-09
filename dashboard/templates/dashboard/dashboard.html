@@ -2,9 +2,8 @@
 {% load static %}
 
 {% block content %}
-
 <div class="container mt-4">
-    <div class="row">
+    <div class="row justify-content-center"> <!-- Centering row -->
         <!-- Personal Details Widget -->
         <div class="col-md-6">
             <div class="card mb-4">
@@ -51,112 +50,153 @@
             </div>
         </div>
     </div>
-
-    {% if people %}
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white d-flex justify-content-between">
-            <div>
-                <i class="fas fa-users me-1"></i> Employees
-            </div>
-            <a href="{% url 'people_management:create_contract' %}" class="btn btn-outline-light">
-                Add New
-            </a>
-        </div>
-        <div class="card shadow-sm p-3 rounded">
-            <ul class="list-group list-group-flush">
-                <!-- Header Row -->
-                <li class="list-group-item bg-secondary text-white py-3">
+    
+<!-- Task Management Section (Visible for all users) -->
+{% if tasks %}
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <i class="fas fa-tasks me-1"></i> Task Management
+    </div>
+    <div class="card-body">
+        <ul class="list-group">
+            {% for task in tasks %}
+                <li class="list-group-item">
                     <div class="row">
-                        <div class="col-md-3">
-                            Name
+                        <div class="col-md-8">
+                            <strong>{{ task.title }}</strong>
                         </div>
                         <div class="col-md-2">
-                            Phone Number
+                            {% if task.status == "pending" %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% elif task.status == "in progress" %}
+                                <span class="badge bg-primary">In Progress</span>
+                            {% elif task.status == "completed" %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-dark">Cancelled</span>
+                            {% endif %}
                         </div>
-                        <div class="col-md-2">
-                            DOB
-                        </div>
-                        <div class="col-md-2">
-                            Status
-                        </div>
-                    </div>
-                </li>
-                {% for person in people %}
-                    <li class="list-group-item py-3">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <strong class="fs-6">{{ person.first_name }} {{ person.last_name }}</strong>
-                            </div>
-                            <div class="col-md-2">
-                                <span class="text-muted small">{{ person.phone_number }}</span>
-                            </div>
-                            <div class="col-md-2">
-                                <span class="text-muted small">{{ person.date_of_birth }}</span>
-                            </div>
-                            <div class="col-md-2">
-                                {% if person.active %}
-                                    <span class="badge bg-success">Active</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Inactive</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <!-- Button Group -->
-                        <div class="row mt-2">
-                            <div class="col text-end">
-                                <a href="{% url 'people_management:view_person' pk=person.id %}" class="btn btn-sm btn-outline-secondary mx-1">
-                                    View
-                                </a>
-                                <a href="{% url 'people_management:update_person' pk=person.id %}" class="btn btn-sm btn-outline-secondary mx-1">
+                        <div class="col-md-2 text-end">
+                            <a href="{% url 'task_management:task_detail' pk=task.id %}" class="btn btn-sm btn-outline-secondary">
+                                View
+                            </a>
+
+                            {% if request.user.is_staff or request.user.person.role == "manager" %}
+                                <!-- Show Edit and Delete for Admin and Manager -->
+                                <a href="{% url 'task_management:task_update' pk=task.id %}" class="btn btn-sm btn-outline-secondary mx-1">
                                     Edit
                                 </a>
-                                <a href="{% url 'people_management:delete_person' pk=person.id %}" class="btn btn-sm btn-outline-secondary mx-1 text-danger">
+                                <a href="{% url 'task_management:task_delete' pk=task.id %}" class="btn btn-sm btn-outline-danger mx-1">
                                     Delete
                                 </a>
-                            </div>
-                        </div>
-                    </li>
-                {% empty %}
-                    <li class="list-group-item text-muted text-center py-3">No employees available.</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    
-    {% endif %}
-
-    {% if contracts %}
-    <div class="card mb-4">
-        <div class="card-header bg-light text-black d-flex justify-content-between">
-            <div>
-                <i class="fas fa-users me-1"></i> Contracts
-            </div>
-            <a href="{% url 'people_management:create_contract' %}" class="btn btn-outline-dark">
-                Add New
-            </a>
-        </div>
-        <div class="card shadow-sm p-3 rounded">
-            <ul class="list-group list-group-flush">
-                <!-- Header Row -->
-                <li class="list-group-item bg-secondary text-white py-3">
-                    <div class="row">
-                        <div class="col-md-2">
-                            Person
-                        </div>
-                        <div class="col-md-2">
-                            Job Title
-                        </div>
-                        <div class="col-md-2">
-                            Hourly Rate
-                        </div>
-                        <div class="col-md-2">
-                            Contracted Hours
+                            {% endif %}
                         </div>
                     </div>
                 </li>
+            {% empty %}
+                <li class="list-group-item text-muted text-center py-3">No tasks assigned to you.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+<!-- Employees Section -->
+{% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" or person and person.role == "manager" %}
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-users me-1"></i> Employees
+        </div>
+
+        {# Add New: only System Admin or HR Admin #}
+        {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" %}
+            {% if perms.people_management.add_person %}
+                <a href="{% url 'people_management:create_new_person' %}" class="btn btn-outline-light btn-sm">
+                    Add New
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="card shadow-sm p-3 rounded">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item bg-secondary text-white py-3">
+                <div class="row">
+                    <div class="col-md-3">Name</div>
+                    <div class="col-md-2">Phone Number</div>
+                    <div class="col-md-2">DOB</div>
+                    <div class="col-md-2">Status</div>
+                    <div class="col-md-3 text-end">Actions</div>
+                </div>
+            </li>
+
+            {% for emp in people %}
+                <li class="list-group-item py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <strong class="fs-6">{{ emp.first_name }} {{ emp.last_name }}</strong>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="text-muted small">{{ emp.phone_number }}</span>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="text-muted small">{{ emp.date_of_birth }}</span>
+                        </div>
+                        <div class="col-md-2">
+                            {% if emp.active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <a href="{% url 'people_management:view_person_details' pk=emp.id %}"
+                               class="btn btn-sm btn-outline-secondary mx-1">View</a>
+
+                            {# Edit/Delete: only System Admin or HR Admin #}
+                            {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" %}
+                                <a href="{% url 'people_management:update_person' pk=emp.id %}"
+                                   class="btn btn-sm btn-outline-secondary mx-1">Edit</a>
+
+                                <a href="{% url 'people_management:delete_person' pk=emp.id %}"
+                                   class="btn btn-sm btn-outline-secondary mx-1 text-danger">Delete</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted text-center py-3">No employees available.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+
+    <!-- Contracts Section -->
+    {% if request.user.person.role == "manager" or request.user.is_staff %}
+    <div class="card mb-4">
+        <div class="card-header bg-light text-black d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-file-contract me-1"></i> Contracts
+            </div>
+        </div>
+
+        <div class="card shadow-sm p-3 rounded">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-secondary text-white py-3">
+                    <div class="row">
+                        <div class="col-md-2">Person</div>
+                        <div class="col-md-2">Job Title</div>
+                        <div class="col-md-2">Hourly Rate</div>
+                        <div class="col-md-2">Contracted Hours</div>
+                        <div class="col-md-4 text-end">Actions</div>
+                    </div>
+                </li>
+
                 {% for contract in contracts %}
                     <li class="list-group-item py-3">
-                        <div class="row">
+                        <div class="row align-items-center">
                             <div class="col-md-2">
                                 <strong class="fs-6">{{ contract.person }}</strong>
                             </div>
@@ -169,19 +209,24 @@
                             <div class="col-md-2">
                                 <span class="text-muted small">{{ contract.contracted_hours }}</span>
                             </div>
-                        </div>
-                        <!-- Button Group -->
-                        <div class="row mt-2">
-                            <div class="col text-end">
-                                <a href="{% url 'people_management:view_contract' pk=contract.id %}" class="btn btn-sm btn-outline-secondary mx-1">
+                            <div class="col-md-4 text-end">
+                                {# View: Admin + Manager #}
+                                <a href="{% url 'people_management:contract_detail' pk=contract.id %}"
+                                class="btn btn-sm btn-outline-secondary mx-1">
                                     View
                                 </a>
-                                <a href="{% url 'people_management:update_contract' pk=contract.id %}" class="btn btn-sm btn-outline-secondary mx-1">
-                                    Edit
-                                </a>
-                                <a href="{% url 'people_management:delete_contract' pk=contract.id %}" class="btn btn-sm btn-outline-secondary mx-1 text-danger">
-                                    Delete
-                                </a>
+
+                                {# Edit/Delete: Admin only (NOT manager) #}
+                                {% if request.user.is_staff or request.user.is_superuser %}
+                                    <a href="{% url 'people_management:update_contract' pk=contract.id %}"
+                                    class="btn btn-sm btn-outline-secondary mx-1">
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'people_management:delete_contract' pk=contract.id %}"
+                                    class="btn btn-sm btn-outline-secondary mx-1 text-danger">
+                                        Delete
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </li>
@@ -191,7 +236,7 @@
             </ul>
         </div>
     </div>
-    
     {% endif %}
-</div> 
+
+</div>
 {% endblock %}

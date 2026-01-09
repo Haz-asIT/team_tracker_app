@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 import dj_database_url
 from decouple import config
 
+
 # Email setup
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = config("EMAIL_HOST")
 EMAIL_PORT = config("EMAIL_PORT", cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
@@ -17,6 +18,37 @@ load_dotenv()
 
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# --- OPTIONAL .env loading ---
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+# --- OPTIONAL DATABASE_URL helper ---
+try:
+    import dj_database_url
+except ImportError:
+    dj_database_url = None
+
+# --- OPTIONAL decouple config ---
+try:
+    from decouple import config
+except ImportError:
+    # fallback if python-decouple not installed
+    def config(key, default=None, cast=str):
+        val = os.getenv(key, default)
+        if cast and val is not None:
+            try:
+                return cast(val)
+            except Exception:
+                return val
+        return val
+
+# EMAIL SETTINGS FOR DEVELOPMENT
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
 
 # SECURITY SETTINGS
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-secret-key")
@@ -30,18 +62,19 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
 # Ensure CSRF_TRUSTED_ORIGINS is properly formatted
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "https://127.0.0.1").split(",")
 
-# Enforce session expiration on browser close
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True # Logout when window closes
-SESSION_COOKIE_AGE = 1800 # 30 minutes of inactivity
-SESSION_COOKIE_HTTPONLY = True # Mitigate XSS attacks
-SESSION_SAVE_EVERY_REQUEST = True # Reset session timer on each request
-#SESSION_COOKIE_SECURE = True # Ensure cookies are only sent over HTTPS
-#SESSION_COOKIE_SAMESITE = 'Lax'   # Prevents CSRF by restricting cross-site usage
 
-# CSRF Cookie Security 
-CSRF_COOKIE_HTTPONLY = True      # Prevents JavaScript from reading the CSRF token
-#CSRF_COOKIE_SECURE = True        # Only send CSRF token over HTTPS
-#CSRF_COOKIE_SAMESITE = 'Lax'     # Standard protection for CSRF cookies
+SESSION_COOKIE_HTTPONLY = True          # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SECURE = not DEBUG       # Send session cookie only over HTTPS (production)
+SESSION_COOKIE_SAMESITE = "Lax"         # Reduce CSRF risk via browser cookie policy
+
+CSRF_COOKIE_HTTPONLY = True             # Prevent JavaScript access to CSRF cookie (optional)
+CSRF_COOKIE_SECURE = not DEBUG          # Send CSRF cookie only over HTTPS (production)
+CSRF_COOKIE_SAMESITE = "Lax"            # Standard CSRF cookie protection
+
+# Session timeout (idle)
+SESSION_COOKIE_AGE = 30 * 60
+SESSION_SAVE_EVERY_REQUEST = True # Reset session timer on each request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # Logout when window closes
 
 # Application definition
 INSTALLED_APPS = [
@@ -56,8 +89,10 @@ INSTALLED_APPS = [
     "simple_history",
     # Custom apps
     "dashboard",
-    "security",
+    "security.apps.SecurityConfig",
     "people_management",
+    "task_management",
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -92,25 +127,38 @@ TEMPLATES = [
     },
 ]
 
+# Messages settings
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 WSGI_APPLICATION = "team_tracker.wsgi.application"
 
-# DATABASE CONFIGURATION (Uses DATABASE_URL from .env or falls back to SQLite)
-DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=False)}
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+# only override if DATABASE_URL is present + dj_database_url exists
+if dj_database_url and os.getenv("DATABASE_URL"):
+    DATABASES["default"] = dj_database_url.config(default=os.getenv("DATABASE_URL"))
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {
-            "min_length": 10,  # Increased from 8 to 10 for stronger security
-        }
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": "security.validators.SpecialCharacterValidator"},
 ]
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
+
 
 # Internationalization
 LANGUAGE_CODE = "en-ms"

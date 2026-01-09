@@ -20,10 +20,17 @@ from django.urls import path, include
 from security.views import LoginInterface
 from django.conf import settings
 from django.conf.urls.static import static
+from people_management import views
+from people_management.views import edit_own_person
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("dashboard.urls")),
     path("people_management/", include("people_management.urls")),
     path("security/", include("security.urls")),
+    path("task_management/", include("task_management.urls")),
+    path('people/', views.ListPeople.as_view(), name='people_list'),
+    path('people/<int:pk>/', views.ViewPersonDetails.as_view(), name='person_detail'),
+    path('profile/', views.ViewOwnPerson.as_view(), name='view_own_person'),
+    path('profile/edit/', edit_own_person, name='edit_own_person'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

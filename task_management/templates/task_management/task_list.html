@@ -1,0 +1,97 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Task List</h2>
+
+    {# Create task only for System Admin OR HR Admin #}
+    {% if request.user.is_staff or request.user.is_superuser %}
+      <a href="{% url 'task_management:task_create' %}" class="btn btn-outline-dark btn-sm">
+        + New Task
+      </a>
+    {% elif person and person.role == "hr_admin" %}
+      <a href="{% url 'task_management:task_create' %}" class="btn btn-outline-dark btn-sm">
+        + New Task
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-info text-white">
+      <i class="fas fa-tasks me-1"></i> Task Management
+    </div>
+
+    <div class="card-body">
+      <ul class="list-group">
+        {% for task in tasks %}
+          <li class="list-group-item">
+            <div class="row align-items-center">
+              <div class="col-md-7">
+                <strong>{{ task.title }}</strong>
+              </div>
+
+              <div class="col-md-3">
+                {% if task.status == "pending" %}
+                  <span class="badge bg-secondary">Pending</span>
+                {% elif task.status == "in progress" %}
+                  <span class="badge bg-primary">In Progress</span>
+                {% elif task.status == "completed" %}
+                  <span class="badge bg-success">Completed</span>
+                {% else %}
+                  <span class="badge bg-dark">{{ task.status }}</span>
+                {% endif %}
+              </div>
+
+              <div class="col-md-2 text-end">
+                {% if task.pk %}
+                  <a href="{% url 'task_management:task_detail' pk=task.pk %}"
+                     class="btn btn-sm btn-outline-secondary">
+                    View
+                  </a>
+                {% endif %}
+
+                {# Admin/Staff can edit + delete #}
+                {% if request.user.is_staff or request.user.is_superuser %}
+                  <a href="{% url 'task_management:task_update' pk=task.pk %}"
+                     class="btn btn-sm btn-outline-secondary mx-1">
+                    Edit
+                  </a>
+                  <a href="{% url 'task_management:task_delete' pk=task.pk %}"
+                     class="btn btn-sm btn-outline-danger">
+                    Delete
+                  </a>
+
+                {# HR Admin can edit + delete #}
+                {% elif person and person.role == "hr_admin" %}
+                  <a href="{% url 'task_management:task_update' pk=task.pk %}"
+                     class="btn btn-sm btn-outline-secondary mx-1">
+                    Edit
+                  </a>
+                  <a href="{% url 'task_management:task_delete' pk=task.pk %}"
+                     class="btn btn-sm btn-outline-danger">
+                    Delete
+                  </a>
+
+                {# Manager can edit ONLY tasks assigned to their team #}
+                {% elif person and person.role == "manager" and task.assigned_to and task.assigned_to.manager_id == person.id %}
+                  <a href="{% url 'task_management:task_update' pk=task.pk %}"
+                     class="btn btn-sm btn-outline-secondary mx-1">
+                    Edit
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted text-center py-3">
+            No tasks assigned to you.
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

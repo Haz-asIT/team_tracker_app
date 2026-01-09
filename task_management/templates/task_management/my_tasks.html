@@ -1,0 +1,98 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-3">My Tasks</h2>
+
+    <div class="card shadow-sm p-3 rounded">
+        <ul class="list-group list-group-flush">
+            <!-- Header Row -->
+            <li class="list-group-item bg-secondary text-white py-3">
+                <div class="row">
+                    <div class="col-md-5">Title</div>
+                    <div class="col-md-2">Status</div>
+                    <div class="col-md-2">Priority</div>
+                    <div class="col-md-3">Due Date</div>
+                </div>
+            </li>
+            {% for task in tasks %}
+                <li class="list-group-item py-3 {% if task.is_overdue %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="row align-items-center">
+                        <div class="col-md-5">
+                            <strong class="fs-6">{{ task.title|truncatechars:50 }}</strong>
+                            {% if task.is_overdue %}
+                                <span class="badge bg-danger ms-2">Overdue</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            {% if task.status == "pending" %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% elif task.status == "in_progress" %}
+                                <span class="badge bg-primary">In Progress</span>
+                            {% elif task.status == "completed" %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-dark">Cancelled</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            {% if task.priority == "urgent" %}
+                                <span class="badge bg-danger">Urgent</span>
+                            {% elif task.priority == "high" %}
+                                <span class="badge bg-warning text-dark">High</span>
+                            {% elif task.priority == "medium" %}
+                                <span class="badge bg-info text-dark">Medium</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">Low</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted small">
+                                {% if task.due_date %}
+                                    {{ task.due_date }}
+                                    {% if task.days_until_due <= 3 and task.days_until_due >= 0 %}
+                                        <span class="text-warning">({{ task.days_until_due }} days left)</span>
+                                    {% endif %}
+                                {% else %}
+                                    No due date
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Button Group -->
+                    <div class="row mt-2">
+                        <div class="col text-end">
+                            <a href="{% url 'task_management:task_detail' pk=task.id %}" class="btn btn-sm btn-outline-secondary mx-1">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted text-center py-3">No tasks assigned to you.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Task pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

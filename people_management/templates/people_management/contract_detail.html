@@ -27,16 +27,24 @@
             </ul>
 
             <div class="mt-3 pe-3">
-                <div class="d-flex justify-content-end">
-                    <a href="{% url 'people_management:contracts'%}" class="btn btn-m btn-outline-secondary mx-1">
-                        Back
-                    </a>
-                    <a href="{% url 'people_management:update_contract' pk=contract.id %}" class="btn btn-m btn-outline-secondary mx-1">
+                <div class="d-flex justify-content-end gap-2">
+
+                <!-- Back button (always allowed) -->
+                <button type="button" class="btn btn-outline-secondary" onclick="history.back();">
+                    Back
+                </button>
+
+                {# Edit/Delete ONLY for System Admin OR HR Admin #}
+                {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" %}
+                    <a href="{% url 'people_management:update_contract' pk=contract.id %}"
+                        class="btn btn-outline-secondary">
                         Edit
                     </a>
-                    <a href="{% url 'people_management:delete_contract' pk=contract.id %}" class="btn btn-m btn-outline-secondary mx-1 text-danger">
+                    <a href="{% url 'people_management:delete_contract' pk=contract.id %}"
+                        class="btn btn-outline-danger">
                         Delete
                     </a>
+                {% endif %}
                 </div>
             </div>
         </div>

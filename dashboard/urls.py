@@ -1,8 +1,8 @@
 from django.urls import path, include
-from . import views
+from .views import DashboardView
 
 app_name = "dashboard"
 
 urlpatterns = [
-    path("", views.DashboardView.as_view(), name="dashboard"),  # Dashboard main page
+    path("", DashboardView.as_view(), name="dashboard"),  # Dashboard main page
 ]

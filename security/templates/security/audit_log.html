@@ -1,47 +1,223 @@
 {% extends 'dashboard/base.html' %}
 
-{% block content %}      
+{% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4">Audit Log</h1>
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Audit Log</h1>
 
-    <ul class="list-group list-group-flush">
-        <!-- Header Row -->
-        <li class="list-group-item bg-secondary text-white py-3">
-            <div class="row">
-                <div class="col-md-3">Date</div>
-                <div class="col-md-3">User</div>
-                <div class="col-md-3">Model</div>
-                <div class="col-md-3">Action</div>
-            </div>
-        </li>
-        {% for entry in audit_entries %}
-            <li class="list-group-item py-3">
-                <div class="row">
-                    <div class="col-md-3">
-                        <strong class="fs-6">{{ entry.history_date|date:"Y-m-d H:i" }}</strong>
-                    </div>
-                    <div class="col-md-3">
-                        {{ entry.history_user|default:"System/Unknown" }}
-                    </div>
-                    <div class="col-md-3">
-                        <span class="text-muted small">{{ entry.model_name }}</span>
-                    </div>
-                    <div class="col-md-3">
-                        {% if entry.history_type == "+" %}
-                            <span class="badge bg-success">Created</span>
-                        {% elif entry.history_type == "~" %}
-                            <span class="badge bg-warning">Updated</span>
-                        {% else %}
-                            <span class="badge bg-danger">Deleted</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </li>
-        {% empty %}
-            <li class="list-group-item py-3 text-center text-muted">
-                No audit log entries available.
-            </li>
-        {% endfor %}
+    <!-- Tabs -->
+    <ul class="nav nav-pills" id="auditTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-security-tab" data-bs-toggle="pill" data-bs-target="#tab-security" type="button" role="tab">
+          Security Events
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-changes-tab" data-bs-toggle="pill" data-bs-target="#tab-changes" type="button" role="tab">
+          Data Changes
+        </button>
+      </li>
     </ul>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card shadow-sm mb-4" style="border-radius: 12px;">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-2">
+          <label class="form-label small text-muted">Filter type</label>
+          <select class="form-select" id="filterType">
+            <option value="security" selected>Security events</option>
+            <option value="changes">Data changes</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small text-muted">Performed by</label>
+          <input class="form-control" id="filterUser" placeholder="e.g. hariz" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small text-muted">Search (event/model/target)</label>
+          <input class="form-control" id="filterText" placeholder="e.g. LOGIN_FAILED / Person / user:ali" />
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small text-muted">Start date</label>
+          <input type="date" class="form-control" id="filterStart" />
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small text-muted">End date</label>
+          <input type="date" class="form-control" id="filterEnd" />
+        </div>
+
+        <div class="col-md-1 d-grid">
+          <button class="btn btn-outline-secondary" id="btnReset" type="button">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="auditTabsContent">
+    <!-- Security Logs Tab         -->
+    <div class="tab-pane fade show active" id="tab-security" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="tableSecurity">
+          <thead class="table-secondary">
+            <tr>
+              <th style="width: 18%;">Date</th>
+              <th style="width: 18%;">Event</th>
+              <th style="width: 16%;">User ID</th>
+              <th style="width: 16%;">IP</th>
+              <th style="width: 32%;">Target</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in security_logs %}
+              <tr class="audit-row"
+                  data-type="security"
+                  data-date="{{ log.created_at|date:'Y-m-d' }}"
+                  data-user="{% if log.actor %}{{ log.actor.username|lower }}{% else %}anonymous{% endif %}"
+                  data-text="{{ log.event|lower }} {{ log.target|default:''|lower }}">
+                <td><strong>{{ log.created_at|date:"Y-m-d H:i" }}</strong></td>
+                <td><span class="badge bg-info text-dark">{{ log.event }}</span></td>
+                <td>{% if log.actor %}{{ log.actor.username }}{% else %}<span class="text-muted">Anonymous</span>{% endif %}</td>
+                <td>{{ log.ip_address|default:"-" }}</td>
+                <td class="text-muted small">{{ log.target|default:"-" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center text-muted py-4">No security logs available.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Data Changes Tab          -->
+    <div class="tab-pane fade" id="tab-changes" role="tabpanel">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="tableChanges">
+          <thead class="table-secondary">
+            <tr>
+              <th style="width: 22%;">Date</th>
+              <th style="width: 26%;">User</th>
+              <th style="width: 26%;">Model</th>
+              <th style="width: 26%;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in audit_entries %}
+              <tr class="audit-row"
+                  data-type="changes"
+                  data-date="{{ entry.history_date|date:'Y-m-d' }}"
+                  data-user="{{ entry.history_user|default:'system'|lower }}"
+                  data-text="{{ entry.model_name|lower }} {% if entry.history_type == '+' %}created{% elif entry.history_type == '~' %}updated{% else %}deleted{% endif %}">
+                <td><strong>{{ entry.history_date|date:"Y-m-d H:i" }}</strong></td>
+                <td>{{ entry.history_user|default:"System/Unknown" }}</td>
+                <td class="text-muted small">{{ entry.model_name }}</td>
+                <td>
+                  {% if entry.history_type == "+" %}
+                    <span class="badge bg-success">Created</span>
+                  {% elif entry.history_type == "~" %}
+                    <span class="badge bg-warning">Updated</span>
+                  {% else %}
+                    <span class="badge bg-danger">Deleted</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="text-center text-muted py-4">No audit log entries available.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+<script>
+    (function () {
+      const filterType  = document.getElementById("filterType");
+      const filterUser  = document.getElementById("filterUser");
+      const filterText  = document.getElementById("filterText");
+      const filterStart = document.getElementById("filterStart");
+      const filterEnd   = document.getElementById("filterEnd");
+      const btnReset    = document.getElementById("btnReset");
+
+      const tabSecurityBtn = document.getElementById("tab-security-tab");
+      const tabChangesBtn  = document.getElementById("tab-changes-tab");
+
+      function inRange(rowDate, start, end) {
+        if (!rowDate) return true;
+        if (start && rowDate < start) return false;
+        if (end && rowDate > end) return false;
+        return true;
+      }
+
+      function applyFilter() {
+        const type = filterType.value ; // security / changes
+        const u = (filterUser.value || "").trim().toLowerCase();
+        const t = (filterText.value || "").trim().toLowerCase();
+        const s = filterStart.value || "";
+        const e = filterEnd.value || "";
+
+        document.querySelectorAll(".audit-row").forEach(row => {
+          const rType = row.dataset.type;
+          const rDate = row.dataset.date;
+          const rUser = row.dataset.user || "";
+          const rText = (row.dataset.text || "").toLowerCase();
+
+          const matchType = (rType === type);
+          const matchUser = !u || rUser.includes(u);
+          const matchText = !t || rText.includes(t);
+          const matchDate = inRange(rDate, s, e);
+
+          row.style.display = (matchType && matchUser && matchText && matchDate) ? "" : "none";
+        });
+      }
+
+      function syncTabToFilterType() {
+        const type = filterType.value;
+        if (type === "security") tabSecurityBtn.click();
+        if (type === "changes") tabChangesBtn.click();
+      }
+
+      // Dropdown change -> switch tab + filter
+      filterType.addEventListener("change", () => {
+        syncTabToFilterType();
+        applyFilter();
+      });
+
+      // Tab click -> update dropdown + filter
+      tabSecurityBtn.addEventListener("click", () => {
+        filterType.value = "security";
+        applyFilter();
+      });
+
+      tabChangesBtn.addEventListener("click", () => {
+        filterType.value = "changes";
+        applyFilter();
+      });
+
+      [filterUser, filterText, filterStart, filterEnd].forEach(el => {
+        el.addEventListener("input", applyFilter);
+        el.addEventListener("change", applyFilter);
+      });
+
+      btnReset.addEventListener("click", () => {
+        filterType.value = "security";
+        filterUser.value = "";
+        filterText.value = "";
+        filterStart.value = "";
+        filterEnd.value = "";
+        syncTabToFilterType();
+        applyFilter();
+      });
+
+      // initial
+      syncTabToFilterType();
+      applyFilter();
+    })();
+</script>
+
 {% endblock %}

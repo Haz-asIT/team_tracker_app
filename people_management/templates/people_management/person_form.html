@@ -21,9 +21,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                {% elif field.name == "resume" %}
-                    <input type="file" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control">
-                {% else %}
+                    {% else %}
                     {{ field }}
                 {% endif %}
 

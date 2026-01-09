@@ -2,20 +2,20 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from people_management.models import Person, Contract
-
+from task_management.models import Task  # Import Task model
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     """
     View for the main dashboard, displaying relevant data based on user roles.
 
-    - Employees: See only their own details (and no contracts).
-    - Managers: See their assigned team members and contracts for their team.
-    - HR/Admins: See all employees and all contracts.
+    - Employees: See only their own details (and no contracts or tasks).
+    - Managers: See their assigned team members, contracts for their team, and tasks for their team.
+    - HR/Admins: See all employees, all contracts, and all tasks.
 
     Access Control:
     - Users must be logged in (redirects to login page if not authenticated).
     - Managers can only access their direct team.
-    - Employees do not see the people management table.
+    - Employees do not see the people management table or tasks.
     """
 
     template_name = "dashboard/dashboard.html"
@@ -35,9 +35,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             - HR/Admin: All contracts.
             - Manager: Contracts for employees in the manager's team.
             - Employee: None (employees do not see any contracts).
+        - tasks: A list of tasks visible to the user:
+            - HR/Admin: All tasks.
+            - Manager: Tasks assigned to their team members.
+            - Employee: Only their own tasks.
 
         Returns:
-            dict: A dictionary with keys 'person', 'people', and 'contracts' for the template.
+            dict: A dictionary with keys 'person', 'people', 'contracts', and 'tasks' for the template.
         """
         print("DASHBOARD VIEW HIT:", self.request.user.is_authenticated)
         context = super().get_context_data(**kwargs)
@@ -69,8 +73,20 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             else:
                 # Employees do not get any contract context
                 context["contracts"] = None
+
+            # Role-based filtering for tasks
+            if person.role == "hr_admin":
+                # HR Admins see all tasks
+                context["tasks"] = Task.objects.all()
+            elif person.role == "manager":
+                # Managers see tasks for their team members (assuming Task has a ForeignKey to Person)
+                context["tasks"] = Task.objects.filter(assigned_to__manager=person)
+            else:
+                # Employees only see their own tasks
+                context["tasks"] = Task.objects.filter(assigned_to=person)
         else:
             context["people"] = None
             context["contracts"] = None
+            context["tasks"] = None
 
         return context

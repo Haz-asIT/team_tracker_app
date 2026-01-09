@@ -1,10 +1,5 @@
 {% extends 'dashboard/base.html' %}
-{% if user.is_authenticated %}
-  <!-- Authenticated content here -->
-{% else %}
-  <!-- Optionally, show a message or a link to the login page -->
-  <p>You must be logged in to view this content. <a href="{% url 'security:login' %}">Login here</a>.</p>
-{% endif %}
+
 {% block content %}
     <div class="container mt-5">
         <h2 class="text-center mb-4">Person Details</h2>
@@ -34,26 +29,12 @@
                         <span class="badge bg-danger">Inactive</span>
                     {% endif %}
                 </li>
-                
-                <li class="list-group-item">
-                    <strong>Resume:</strong>
-                    {% if person.resume %}
-                        <a href="{{ person.resume.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                            View/Download Resume (PDF)
-                        </a>
-                        <div class="mt-1">
-                            <small class="text-muted">Secure ID: {{ person.resume.name }}</small>
-                        </div>
-                    {% else %}
-                        <span class="text-muted ms-2">No resume uploaded.</span>
-                    {% endif %}
-                </li>
                 <li class="list-group-item">
                     <strong>Contracts:</strong>
                     <ul class="mt-2">
                         {% for contract in person.contracts.all %}
                           <li>
-                            <a href="{% url 'people_management:view_contract' contract.pk %}">
+                            <a href="{% url 'people_management:contract_detail' contract.pk %}">
                               Contract from {{ contract.contract_start }} to {{ contract.contract_end }}
                             </a>
                           </li>
@@ -65,20 +46,32 @@
             </ul>
 
             <div class="mt-3 pe-3">
-                <div class="d-flex justify-content-end">
-                    <a href="{% url 'people_management:people' %}" class="btn btn-m btn-outline-secondary mx-1">
-                        Cancel
-                    </a>
-                    {% if request.user.person.role == "hr_admin" or request.user.person.role == "manager"%}
-                        <a href="{% url 'people_management:update_person' pk=person.id %}" class="btn btn-m btn-outline-secondary mx-1">
-                            Edit
-                        </a>
-                        <a href="{% url 'people_management:delete_person' pk=person.id %}" class="btn btn-m btn-outline-secondary mx-1 text-danger">
-                            Delete
-                        </a>
-                    {% endif %}
-                </div>
+            <div class="d-flex justify-content-end gap-2">
+
+                <!-- Always show Back (go to previous page) -->
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        onclick="history.back();">
+                Back
+                </button>
+
+                {% if perms.people_management.change_person %}
+                <a href="{% url 'people_management:update_person' pk=person.id %}"
+                    class="btn btn-outline-secondary">
+                    Edit
+                </a>
+                {% endif %}
+
+                {% if perms.people_management.delete_person %}
+                <a href="{% url 'people_management:delete_person' pk=person.id %}"
+                    class="btn btn-outline-secondary text-danger">
+                    Delete
+                </a>
+                {% endif %}
+
+              </div>
             </div>
+
         </div>
     </div>
 {% endblock %}

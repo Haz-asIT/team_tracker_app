@@ -1,0 +1,43 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center my-2">My Personal Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 font-weight-bold">Full Name:</div>
+                        <div class="col-sm-8">{{ person.first_name }} {{ person.last_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 font-weight-bold">Email Address:</div>
+                        <div class="col-sm-8">{{ person.email }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 font-weight-bold">Phone Number:</div>
+                        <div class="col-sm-8">{{ person.phone_number|default:"Not Provided" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 font-weight-bold">Role:</div>
+                        <div class="col-sm-8"><span class="badge bg-info text-dark">{{ person.get_role_display }}</span></div>
+                    </div>
+                    <hr>
+                        <div class="d-flex justify-content-between align-items-center gap-2">
+                            <a href="{% url 'dashboard:dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-chevron-left me-1"></i> Back to Dashboard
+                            </a>
+                            
+                            <a href="{% url 'people_management:edit_own_person' %}" class="btn btn-warning">
+                                <i class="fas fa-user-edit me-1"></i> Edit My Details
+                            </a>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

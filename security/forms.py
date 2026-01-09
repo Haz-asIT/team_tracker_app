@@ -4,7 +4,8 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.mail import send_mail
 from people_management.models import Person
-
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.forms import PasswordChangeForm
 
 class CustomUserCreationForm(UserCreationForm):
     """
@@ -216,12 +217,13 @@ class CustomUserUpdateForm(forms.ModelForm):
 
         return user
 
-
 class CustomLoginForm(AuthenticationForm):
-    """Custom login form extending Django's default authentication form."""
+    """Custom login form with generic errors to prevent user enumeration."""
 
-    pass
-
+    error_messages = {
+        "invalid_login": _("Invalid username or password."),
+        "inactive": _("Invalid username or password."),
+    }
 
 class GroupForm(forms.ModelForm):
     """
@@ -238,3 +240,9 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ["name", "permissions"]
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})

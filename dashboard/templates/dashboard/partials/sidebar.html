@@ -2,75 +2,118 @@
     <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
         <div class="sb-sidenav-menu">
             <div class="nav">
+                <!-- Home Section -->
                 <div class="sb-sidenav-menu-heading">Home</div>
                 <a class="nav-link" href="{% url 'dashboard:dashboard' %}">
                     <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                     Dashboard
                 </a>
-                {% if request.user.person.role == "hr_admin" or request.user.person.role == "manager"%}
-                    <!-- People Management -->
+
+                <!-- People Management Section -->
+                {% if perms.people_management.view_person or perms.people_management.view_contract %}
                     <div class="sb-sidenav-menu-heading">People Management</div>
                     <!-- People -->
-                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePeople" aria-expanded="false" aria-controls="collapsePeople">
-                        <div class="sb-nav-link-icon"><i class="fas fa-person"></i></div>
-                        People
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapsePeople" aria-labelledby="headingPeople" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{% url 'people_management:people' %}">View People</a>
-                            <a class="nav-link" href="{% url 'people_management:create_person' %}">Create Person</a>
-                        </nav>
-                    </div>
+                    {% if perms.people_management.view_person %}
+                        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePeople"
+                           aria-expanded="false" aria-controls="collapsePeople">
+                            <div class="sb-nav-link-icon"><i class="fas fa-person"></i></div>
+                            People
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+
+                        <div class="collapse" id="collapsePeople" aria-labelledby="headingPeople" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="{% url 'people_management:people' %}">View People</a>
+                                {% if perms.people_management.add_person %}
+                                    <a class="nav-link" href="{% url 'people_management:create_new_person' %}">Create Person</a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    {% endif %}
 
                     <!-- Contracts Section -->
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseContracts" aria-expanded="false" aria-controls="collapseContracts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
-                        Contracts
+                    {% if perms.people_management.view_contract %}
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseContracts"
+                           aria-expanded="false" aria-controls="collapseContracts">
+                            <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                            Contracts
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+
+                        <div class="collapse" id="collapseContracts" aria-labelledby="headingContracts" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="{% url 'people_management:contracts' %}">View Contracts</a>
+                                {% if perms.people_management.add_contract %}
+                                    <a class="nav-link" href="{% url 'people_management:create_contract' %}">Create Contract</a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Task Management Section -->
+                {% if perms.task_management.view_task %}
+                    <div class="sb-sidenav-menu-heading">Task Management</div>
+                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTasks"
+                       aria-expanded="false" aria-controls="collapseTasks">
+                        <div class="sb-nav-link-icon"><i class="fas fa-tasks"></i></div>
+                        Tasks
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
-                    <div class="collapse" id="collapseContracts" aria-labelledby="headingContracts" data-bs-parent="#sidenavAccordion">
+
+                    <div class="collapse" id="collapseTasks" aria-labelledby="headingTasks" data-bs-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{% url 'people_management:contracts' %}">View Contracts</a>
-                            <a class="nav-link" href="{% url 'people_management:create_contract' %}">Create Contract</a>
+                            <a class="nav-link" href="{% url 'task_management:task_list' %}">View Tasks</a>
+                            {% if perms.task_management.add_task %}
+                                <a class="nav-link" href="{% url 'task_management:task_create' %}">Create Task</a>
+                            {% endif %}
                         </nav>
                     </div>
                 {% endif %}
-                
+
                 <!-- Security Section -->
-                {% if request.user.is_authenticated and "Admin" in request.user.groups.all.values_list.0 %}
+                {% if perms.auth.view_user or perms.auth.view_group or perms.security.view_securitylog %}
                     <div class="sb-sidenav-menu-heading">Security</div>
                     <!-- Users -->
-                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
-                        <div class="sb-nav-link-icon"><i class="fas fa-cogs"></i></div> <!-- Changed to cog icon -->
-                        Users
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseUsers" aria-labelledby="headingUsers" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{% url 'security:user_list' %}">View Users</a>
-                            <a class="nav-link" href="{% url 'security:user_create' %}">Create User</a>
-                        </nav>
-                    </div>
-                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseGroups" aria-expanded="false" aria-controls="collapseGroups">
-                        <div class="sb-nav-link-icon"><i class="fa-solid fa-universal-access"></i></div> <!-- Changed to cog icon -->
-                        Groups
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseGroups" aria-labelledby="headingGroups" data-bs-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{% url 'security:group_list' %}">View Groups</a>
-                            <a class="nav-link" href="{% url 'security:group_add' %}">Create Group</a>
-                        </nav>
-                    </div>
+                    {% if perms.auth.view_user %}
+                        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+                            <div class="sb-nav-link-icon"><i class="fas fa-cogs"></i></div>
+                            Users
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseUsers" aria-labelledby="headingUsers" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="{% url 'security:user_list' %}">View Users</a>
+                                {% if perms.auth.add_user %}
+                                    <a class="nav-link" href="{% url 'security:user_create' %}">Create User</a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    {% endif %}
+                    <!-- Groups -->
+                    {% if perms.auth.view_group %}
+                        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseGroups" aria-expanded="false" aria-controls="collapseGroups">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-universal-access"></i></div>
+                            Groups
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseGroups" aria-labelledby="headingGroups" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="{% url 'security:group_list' %}">View Groups</a>
+                                {% if perms.auth.add_group %}
+                                    <a class="nav-link" href="{% url 'security:group_add' %}">Create Group</a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    {% endif %}
                     <!-- Audit Log -->
-                    <a class="nav-link" href="{% url 'security:audit_log' %}">
-                        <div class="sb-nav-link-icon"><i class="fa-solid fa-file-lines"></i></div>
-                        Audit Log
-                    </a>
-
+                    {% if perms.security.view_securitylog %}
+                        <a class="nav-link" href="{% url 'security:audit_log' %}">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-file-lines"></i></div>
+                            Audit Log
+                        </a>
+                    {% endif %}
                 {% endif %}
-
             </div>
         </div>
         <div class="sb-sidenav-footer">

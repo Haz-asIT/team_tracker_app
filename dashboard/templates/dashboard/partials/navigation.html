@@ -1,32 +1,47 @@
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-    <!-- Hamburger Menu Button for Mobile -->
     <button class="btn btn-dark" id="sidebarToggle">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Navbar Brand -->
     <a class="navbar-brand ps-3" href="{% url 'dashboard:dashboard' %}">People Tracker</a>
 
-    <!-- Right-aligned navbar items -->
     <ul class="navbar-nav ms-auto me-3 me-lg-4">
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-user fa-fw"></i>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li>
+                {% if person %}
+                    <a class="dropdown-item" href="{% url 'people_management:view_own_person' %}">Details</a>
+                {% endif %}
+            </li>
+
+            <!-- Admin-only: Activity Log -->
+            {% if request.user.is_authenticated and person and person.role == "hr_admin" %}
                 <li>
-                    {% if person %}
-                        <a class="dropdown-item" href="{% url 'people_management:view_own_person' %}">Details</a>
-                    {% endif %}
-                </li>
-                <li>
-                    {% if request.user.person.role == "hr_admin" %}
                     <a class="dropdown-item" href="{% url 'security:audit_log' %}">Activity Log</a>
-                    {% endif %}
                 </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li><a class="dropdown-item" href="{% url 'security:logout' %}">Logout</a></li>
-            </ul>
+            {% endif %}
+
+            <!-- Everyone: Change Password -->
+            <li>
+                <a class="dropdown-item" href="{% url 'security:password_change' %}">Change Password</a>
+            </li>
+
+            <li><hr class="dropdown-divider" /></li>
+
+            <!-- Secure Logout via POST -->
+            <li>
+                <form method="post" action="{% url 'security:logout' %}" class="m-0 p-0">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item w-100 text-start">
+                        Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+
         </li>
     </ul>
 </nav>

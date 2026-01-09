@@ -1,0 +1,123 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <h3 class="mb-0">Task Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Title:</strong></div>
+                <div class="col-md-9">{{ task.title }}</div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Description:</strong></div>
+                <div class="col-md-9">
+                    {% if task.description %}
+                        {{ task.description|linebreaks }}
+                    {% else %}
+                        <span class="text-muted">No description provided</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Status:</strong></div>
+                <div class="col-md-9">
+                    {% if task.status == "pending" %}
+                        <span class="badge bg-secondary">Pending</span>
+                    {% elif task.status == "in progress" %}
+                        <span class="badge bg-primary">In Progress</span>
+                    {% elif task.status == "completed" %}
+                        <span class="badge bg-success">Completed</span>
+                    {% else %}
+                        <span class="badge bg-dark">Cancelled</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Priority:</strong></div>
+                <div class="col-md-9">
+                    {% if task.priority == "urgent" %}
+                        <span class="badge bg-danger">Urgent</span>
+                    {% elif task.priority == "high" %}
+                        <span class="badge bg-warning text-dark">High</span>
+                    {% elif task.priority == "medium" %}
+                        <span class="badge bg-info text-dark">Medium</span>
+                    {% else %}
+                        <span class="badge bg-light text-dark">Low</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Assigned To:</strong></div>
+                <div class="col-md-9">
+                    {% if task.assigned_to %}
+                        {{ task.assigned_to.first_name }} {{ task.assigned_to.last_name }}
+                    {% else %}
+                        <span class="text-muted">Unassigned</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Created By:</strong></div>
+                <div class="col-md-9">
+                    {% if task.created_by %}
+                        {{ task.created_by.first_name }} {{ task.created_by.last_name }}
+                    {% else %}
+                        <span class="text-muted">Unknown</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Due Date:</strong></div>
+                <div class="col-md-9">
+                    {% if task.due_date %}
+                        {{ task.due_date }}
+                        {% if task.is_overdue %}
+                            <span class="badge bg-danger ms-2">Overdue</span>
+                        {% elif task.days_until_due <= 3 and task.days_until_due >= 0 %}
+                            <span class="badge bg-warning text-dark ms-2">Due Soon</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">No due date set</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Created At:</strong></div>
+                <div class="col-md-9">{{ task.created_at|date:"F d, Y H:i" }}</div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3"><strong>Last Updated:</strong></div>
+                <div class="col-md-9">{{ task.updated_at|date:"F d, Y H:i" }}</div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <!-- Only show Edit and Delete buttons for non-admin users or those with permissions -->
+            {% if request.user.is_staff %}
+                <a href="{% url 'task_management:task_update' pk=task.id %}" class="btn btn-outline-secondary">Edit</a>
+                <a href="{% url 'task_management:task_delete' pk=task.id %}" class="btn btn-outline-danger">Delete</a>
+            {% endif %}
+            
+            <!-- Conditionally set "Back to List" link -->
+            {% if request.user.is_staff %}
+                <!-- If admin, link to task list -->
+                <a href="{% url 'dashboard:dashboard' %}" class="btn btn-dark">Back</a>
+            {% else %}
+                <!-- If non-admin, link to dashboard -->
+                <a href="{% url 'dashboard:dashboard' %}" class="btn btn-dark">Back to Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

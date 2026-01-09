@@ -25,5 +25,21 @@ core.python*
 cloudinary_python.txt
 env.py
 
+# Django / local database
+db.sqlite3
+*.sqlite3
+
+# Django collected static + uploads (usually not committed)
+staticfiles/
+media/
+sent_emails/
+
+# Logs
+*.log
+staticfiles_debug.log
+
+# Migrations cache / local artifacts
+*.pyc
+
 # Ignore readme only if not needed, otherwise remove this
 # README.md
