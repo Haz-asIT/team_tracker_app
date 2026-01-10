@@ -21131,3 +21131,31 @@ Traceback (most recent call last):
     raise TemplateSyntaxError(
 django.template.exceptions.TemplateSyntaxError: Could not parse the remainder: '(person' from '(person'
 "GET /people_management/contracts/ HTTP/1.1" 500 212633
+Internal Server Error: /task_management/create/
+Traceback (most recent call last):
+  File "C:\Users\hariz\Downloads\team_tracker\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hariz\Downloads\team_tracker\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hariz\Downloads\team_tracker\venv\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hariz\Downloads\team_tracker\task_management\views.py", line 66, in dispatch
+    if is_hr_admin(request.user) or is_manager(request.user):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\hariz\Downloads\team_tracker\people_management\utils.py", line 14, in is_hr_admin
+    return user.is_staff or get_role(user) == "hr_admin"
+                            ^^^^^^^^^^^^^^
+  File "C:\Users\hariz\Downloads\team_tracker\people_management\utils.py", line 10, in get_role
+    person = get_person(user)
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\hariz\Downloads\team_tracker\people_management\utils.py", line 5, in get_person
+    return user.person
+           ^^^^^^^^^^^
+  File "C:\Users\hariz\Downloads\team_tracker\venv\Lib\site-packages\django\utils\functional.py", line 268, in inner
+    return func(_wrapped, *args)
+           ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'AnonymousUser' object has no attribute 'person'
+"GET /task_management/create/ HTTP/1.1" 500 87280
