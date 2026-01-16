@@ -65,7 +65,7 @@ class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     success_url = reverse_lazy("security:password_change_done")
 
     def form_valid(self, form):
-        messages.success(self.request, "✅ Password updated successfully!")
+        messages.success(self.request, " Password updated successfully!")
         return super().form_valid(form)
 
 class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
@@ -347,5 +347,11 @@ class AuditLogListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["security_logs"] = SecurityLog.objects.all()[:100]
+        
+        # STRICT RBAC: Only load Security Logs if the user is a Superuser
+        if self.request.user.is_superuser:
+            context["security_logs"] = SecurityLog.objects.all()[:100]
+        else:
+            context["security_logs"] = []  # HR Admin gets an empty list
+            
         return context

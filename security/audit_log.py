@@ -12,6 +12,7 @@ from people_management.models import Person, Contract
 class AuditLogListView(LoginRequiredMixin, ListView):
     template_name = "security/audit_log.html"
     context_object_name = "audit_entries"
+    permission_required = "security.view_auditlog"
 
     def dispatch(self, request, *args, **kwargs):
         """
