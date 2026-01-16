@@ -17,7 +17,6 @@ urlpatterns = [
     path('my-profile/edit/', views.edit_own_person, name='edit_own_person'),
     
 
-
     # --- CONTRACT MANAGEMENT (System Admin + HR Admin) ---
     path('contracts/', views.FilteredContractListView.as_view(), name='contracts'),
     path('contract/<int:pk>/', views.ViewContractDetails.as_view(), name='contract_detail'),

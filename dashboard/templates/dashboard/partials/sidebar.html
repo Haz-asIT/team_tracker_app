@@ -10,10 +10,11 @@
                 </a>
 
                 <!-- People Management Section -->
-                {% if perms.people_management.view_person or perms.people_management.view_contract %}
+                {% if request.user.person.role == "HR Admin" %}
                     <div class="sb-sidenav-menu-heading">People Management</div>
                     <!-- People -->
-                    {% if perms.people_management.view_person %}
+                    
+                     {% if request.user.person.role == "HR Admin" %}
                         <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePeople"
                            aria-expanded="false" aria-controls="collapsePeople">
                             <div class="sb-nav-link-icon"><i class="fas fa-person"></i></div>
@@ -24,7 +25,7 @@
                         <div class="collapse" id="collapsePeople" aria-labelledby="headingPeople" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="{% url 'people_management:people' %}">View People</a>
-                                {% if perms.people_management.add_person %}
+                                {% if request.user.person.role == "HR Admin" %}
                                     <a class="nav-link" href="{% url 'people_management:create_new_person' %}">Create Person</a>
                                 {% endif %}
                             </nav>
@@ -32,7 +33,7 @@
                     {% endif %}
 
                     <!-- Contracts Section -->
-                    {% if perms.people_management.view_contract %}
+                    {% if request.user.person.role == "HR Admin" %}
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseContracts"
                            aria-expanded="false" aria-controls="collapseContracts">
                             <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
@@ -43,7 +44,7 @@
                         <div class="collapse" id="collapseContracts" aria-labelledby="headingContracts" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" href="{% url 'people_management:contracts' %}">View Contracts</a>
-                                {% if perms.people_management.add_contract %}
+                                {% if request.user.person.role == "HR Admin" %}
                                     <a class="nav-link" href="{% url 'people_management:create_contract' %}">Create Contract</a>
                                 {% endif %}
                             </nav>
@@ -52,7 +53,7 @@
                 {% endif %}
 
                 <!-- Task Management Section -->
-                {% if perms.task_management.view_task %}
+                {% if request.user.person.role == "Manager" or request.user.person.role == "HR Admin" %}
                     <div class="sb-sidenav-menu-heading">Task Management</div>
                     <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTasks"
                        aria-expanded="false" aria-controls="collapseTasks">
@@ -64,7 +65,7 @@
                     <div class="collapse" id="collapseTasks" aria-labelledby="headingTasks" data-bs-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
                             <a class="nav-link" href="{% url 'task_management:task_list' %}">View Tasks</a>
-                            {% if perms.task_management.add_task %}
+                           {% if request.user.person.role == "HR Admin" %}
                                 <a class="nav-link" href="{% url 'task_management:task_create' %}">Create Task</a>
                             {% endif %}
                         </nav>

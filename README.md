@@ -39,3 +39,4 @@ Install required dependencies
 Configure environment variables using .env.example
 Run database migrations
 Start the development server
+

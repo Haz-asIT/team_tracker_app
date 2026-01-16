@@ -2,7 +2,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from people_management.models import Person, Contract
-from task_management.models import Task  # Import Task model
+from task_management.models import Task 
+from django.db.models import Q
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     """
@@ -79,8 +80,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 # HR Admins see all tasks
                 context["tasks"] = Task.objects.all()
             elif person.role == "Manager":
-                # Managers see tasks for their team members (assuming Task has a ForeignKey to Person)
-                context["tasks"] = Task.objects.filter(assigned_to__manager=person)
+                # FETCH: Tasks assigned to ME (person) OR tasks assigned to MY TEAM
+                context["tasks"] = Task.objects.filter(
+                    Q(assigned_to=person) | Q(assigned_to__manager=person)
+                ).distinct()  # .distinct() prevents duplicates if logic overlaps
             else:
                 # Employees only see their own tasks
                 context["tasks"] = Task.objects.filter(assigned_to=person)

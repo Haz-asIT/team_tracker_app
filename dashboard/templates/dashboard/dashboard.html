@@ -50,8 +50,8 @@
             </div>
         </div>
     </div>
-    
-{% if tasks %}
+
+{% if request.user.person.role == "Manager" or request.user.person.role == "Employee" or request.user.person.role == "HR Admin" %}
     <div class="card mb-4">
         <div class="card-header bg-info text-white">
             <i class="fas fa-tasks me-1"></i> Task Management
@@ -63,8 +63,16 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <strong>{{ task.title }}</strong>
-                            </div>
-                            
+                                <br>
+                                    <small class="text-muted">
+                                        Assigned to: 
+                                        {% if task.assigned_to == request.user.person %}
+                                            <span class="text-primary">Me</span>
+                                        {% else %}
+                                            {{ task.assigned_to.first_name }} {{ task.assigned_to.last_name }}
+                                        {% endif %}
+                                    </small>
+                                </div>
                             <div class="col-md-2">
                                 {% if task.status == "pending" %}
                                     <span class="badge bg-secondary">Pending</span>
@@ -81,8 +89,8 @@
                                     View
                                 </a>
 
-                                {% if request.user.person.role == "Manager" %}
-                                <!-- Show Edit and Delete for Admin and Manager -->
+                                {% if request.user.person.role == "HR Admin" %}
+                                <!-- Show Edit and Delete for Admin -->
                                 <a href="{% url 'task_management:task_update' pk=task.id %}" class="btn btn-sm btn-outline-secondary mx-1">
                                     Edit
                                 </a>
@@ -100,16 +108,17 @@
         </div>
     </div>
     {% endif %}
+    
 <!-- Employees Section -->
-{% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" or person and person.role == "Manager" %}
+{% if request.user.is_staff and person.role == "HR Admin" or person and person.role == "Manager" %}
 <div class="card mb-4">
     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
         <div>
             <i class="fas fa-users me-1"></i> Employees
         </div>
 
-        {# Add New: only System Admin or HR Admin #}
-        {% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" %}
+        {# Add New: only HR Admin #}
+        {% if request.user.is_staff and person.role == "HR Admin" %}
             {% if perms.people_management.add_person %}
                 <a href="{% url 'people_management:create_new_person' %}" class="btn btn-outline-light btn-sm">
                     Add New
@@ -174,7 +183,8 @@
 
 
     <!-- Contracts Section -->
-    {% if request.user.person.role == "Manager" or request.user.is_staff %}
+
+     {% if request.user.is_staff and person.role == "HR Admin" or person and person.role == "Manager" %}
     <div class="card mb-4">
         <div class="card-header bg-light text-black d-flex justify-content-between align-items-center">
             <div>
@@ -216,8 +226,8 @@
                                     View
                                 </a>
 
-                                {# Edit/Delete: Admin only (NOT Manager) #}
-                                {% if request.user.is_staff or request.user.is_superuser %}
+                                {# Edit/Delete: HR Admin (NOT Manager) #}
+                                {% if request.user.is_staff %}
                                     <a href="{% url 'people_management:update_contract' pk=contract.id %}"
                                     class="btn btn-sm btn-outline-secondary mx-1">
                                         Edit

@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.core.exceptions import PermissionDenied
-
+from django.db.models import Q
 from task_management.models import Task
 from people_management.utils import get_person, is_hr_admin, is_manager
 
@@ -20,23 +20,25 @@ class TaskListView(LoginRequiredMixin, ListView):
         user = self.request.user
         person = get_person(user)
 
-        # Admin / HR admin: all tasks
-        if is_hr_admin(user):
+    # SAFETY: If no profile exists, return nothing
+        if not person:
+            return Task.objects.none()
+
+        # Only HR Admin gets all tasks
+        if person.role == "HR Admin":
             tasks = Task.objects.all()
 
-        # Manager: tasks assigned to their team
-        elif is_manager(user) and person:
-            tasks = Task.objects.filter(assigned_to__manager=person)
+        # Manager: See Team + Own Tasks
+        elif person.role == "Manager":
+            tasks = Task.objects.filter(
+                Q(assigned_to=person) | Q(assigned_to__manager=person)
+            ).distinct()
 
-        # Employee: only own tasks
-        elif person:
+        # Employee (and everyone else): See ONLY Own Tasks
+        else:
             tasks = Task.objects.filter(assigned_to=person)
 
-        # No Person linked -> show nothing (prevents crash)
-        else:
-            tasks = Task.objects.none()
-
-        # Optional filters
+        # Filtering based on GET parameters
         status = self.request.GET.get("status")
         if status:
             tasks = tasks.filter(status=status)
@@ -53,7 +55,7 @@ class TaskListView(LoginRequiredMixin, ListView):
 
 
 # =========================
-# Create Task (only admin/manager usually)
+# Create Task (only admin usually)
 # =========================
 class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task

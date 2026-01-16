@@ -62,17 +62,17 @@
                         <div class="row mt-2">
                             <div class="col text-end">
 
-                                {% if perms.people_management.view_person %}
+                                {% if request.user.person.role == "HR Admin" %}
                                     <a href="{% url 'people_management:view_person_details' pk=person.id %}"
                                        class="btn btn-sm btn-outline-secondary mx-1">View</a>
                                 {% endif %}
 
-                                {% if perms.people_management.change_person %}
+                                {% if request.user.person.role == "HR Admin" %}
                                     <a href="{% url 'people_management:update_person' pk=person.id %}"
                                        class="btn btn-sm btn-outline-secondary mx-1">Edit</a>
                                 {% endif %}
 
-                                {% if perms.people_management.delete_person %}
+                                {% if request.user.person.role == "HR Admin" %}
                                     <a href="{% url 'people_management:delete_person' pk=person.id %}"
                                        class="btn btn-sm btn-outline-secondary mx-1 text-danger">Delete</a>
                                 {% endif %}
