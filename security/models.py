@@ -26,6 +26,7 @@ class SecurityLog(models.Model):
     user_agent = models.TextField(blank=True)
     target = models.CharField(max_length=200, blank=True)   # e.g., "User: johndoe", "Contract: 12"
     meta = models.JSONField(default=dict, blank=True)       # extra info (NO secrets)
+    register(Group)
 
     class Meta:
         ordering = ["-created_at"]

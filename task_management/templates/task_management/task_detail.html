@@ -104,13 +104,13 @@
 
         <div class="card-footer">
             <!-- Only show Edit and Delete buttons for non-admin users or those with permissions -->
-            {% if request.user.is_staff %}
+            {% if request.user.is_superuser or request.user.person.role == "hr_admin" or request.user.person.role == "manager" %}
                 <a href="{% url 'task_management:task_update' pk=task.id %}" class="btn btn-outline-secondary">Edit</a>
                 <a href="{% url 'task_management:task_delete' pk=task.id %}" class="btn btn-outline-danger">Delete</a>
             {% endif %}
             
             <!-- Conditionally set "Back to List" link -->
-            {% if request.user.is_staff %}
+            {% if request.user.is_superuser or request.user.person.role == "hr_admin" or request.user.person.role == "manager" %}
                 <!-- If admin, link to task list -->
                 <a href="{% url 'dashboard:dashboard' %}" class="btn btn-dark">Back</a>
             {% else %}

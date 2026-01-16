@@ -51,37 +51,37 @@
         </div>
     </div>
     
-<!-- Task Management Section (Visible for all users) -->
 {% if tasks %}
-<div class="card mb-4">
-    <div class="card-header bg-info text-white">
-        <i class="fas fa-tasks me-1"></i> Task Management
-    </div>
-    <div class="card-body">
-        <ul class="list-group">
-            {% for task in tasks %}
-                <li class="list-group-item">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <strong>{{ task.title }}</strong>
-                        </div>
-                        <div class="col-md-2">
-                            {% if task.status == "pending" %}
-                                <span class="badge bg-secondary">Pending</span>
-                            {% elif task.status == "in progress" %}
-                                <span class="badge bg-primary">In Progress</span>
-                            {% elif task.status == "completed" %}
-                                <span class="badge bg-success">Completed</span>
-                            {% else %}
-                                <span class="badge bg-dark">Cancelled</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-2 text-end">
-                            <a href="{% url 'task_management:task_detail' pk=task.id %}" class="btn btn-sm btn-outline-secondary">
-                                View
-                            </a>
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <i class="fas fa-tasks me-1"></i> Task Management
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for task in tasks %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <strong>{{ task.title }}</strong>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                {% if task.status == "pending" %}
+                                    <span class="badge bg-secondary">Pending</span>
+                                {% elif task.status == "in progress" %}
+                                    <span class="badge bg-primary">In Progress</span>
+                                {% elif task.status == "completed" %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-dark">Cancelled</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <a href="{% url 'task_management:task_detail' pk=task.id %}" class="btn btn-sm btn-outline-secondary">
+                                    View
+                                </a>
 
-                            {% if request.user.is_staff or request.user.person.role == "manager" %}
+                                {% if request.user.person.role == "manager" %}
                                 <!-- Show Edit and Delete for Admin and Manager -->
                                 <a href="{% url 'task_management:task_update' pk=task.id %}" class="btn btn-sm btn-outline-secondary mx-1">
                                     Edit
@@ -90,16 +90,16 @@
                                     Delete
                                 </a>
                             {% endif %}
+                            </div>
                         </div>
-                    </div>
-                </li>
-            {% empty %}
-                <li class="list-group-item text-muted text-center py-3">No tasks assigned to you.</li>
-            {% endfor %}
-        </ul>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted text-center py-3">No tasks assigned to you.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 <!-- Employees Section -->
 {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" or person and person.role == "manager" %}
 <div class="card mb-4">

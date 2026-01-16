@@ -6,12 +6,8 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Task List</h2>
 
-    {# Create task only for System Admin OR HR Admin #}
-    {% if request.user.is_staff or request.user.is_superuser %}
-      <a href="{% url 'task_management:task_create' %}" class="btn btn-outline-dark btn-sm">
-        + New Task
-      </a>
-    {% elif person and person.role == "hr_admin" %}
+    {# Create Task Button: Visible to Admin, HR, AND Managers #}
+    {% if request.user.is_staff or request.user.is_superuser or person.role == "hr_admin" or person.role == "manager" %}
       <a href="{% url 'task_management:task_create' %}" class="btn btn-outline-dark btn-sm">
         + New Task
       </a>
@@ -28,6 +24,7 @@
         {% for task in tasks %}
           <li class="list-group-item">
             <div class="row align-items-center">
+              
               <div class="col-md-7">
                 <strong>{{ task.title }}</strong>
               </div>
@@ -45,6 +42,8 @@
               </div>
 
               <div class="col-md-2 text-end">
+                
+                {# VIEW BUTTON: Everyone can see this #}
                 {% if task.pk %}
                   <a href="{% url 'task_management:task_detail' pk=task.pk %}"
                      class="btn btn-sm btn-outline-secondary">
@@ -52,35 +51,19 @@
                   </a>
                 {% endif %}
 
-                {# Admin/Staff can edit + delete #}
-                {% if request.user.is_staff or request.user.is_superuser %}
-                  <a href="{% url 'task_management:task_update' pk=task.pk %}"
-                     class="btn btn-sm btn-outline-secondary mx-1">
-                    Edit
-                  </a>
-                  <a href="{% url 'task_management:task_delete' pk=task.pk %}"
-                     class="btn btn-sm btn-outline-danger">
-                    Delete
-                  </a>
-
-                {# HR Admin can edit + delete #}
-                {% elif person and person.role == "hr_admin" %}
-                  <a href="{% url 'task_management:task_update' pk=task.pk %}"
-                     class="btn btn-sm btn-outline-secondary mx-1">
-                    Edit
-                  </a>
-                  <a href="{% url 'task_management:task_delete' pk=task.pk %}"
-                     class="btn btn-sm btn-outline-danger">
-                    Delete
-                  </a>
-
-                {# Manager can edit ONLY tasks assigned to their team #}
-                {% elif person and person.role == "manager" and task.assigned_to and task.assigned_to.manager_id == person.id %}
-                  <a href="{% url 'task_management:task_update' pk=task.pk %}"
-                     class="btn btn-sm btn-outline-secondary mx-1">
-                    Edit
-                  </a>
+                {# EDIT/DELETE BUTTONS: Hidden from Employees #}
+                {# Only show if User is Admin, HR, or Manager #}
+                {% if request.user.is_superuser or person.role == "hr_admin" or person.role == "manager" %}
+                   <a href="{% url 'task_management:task_update' pk=task.pk %}"
+                      class="btn btn-sm btn-outline-secondary mx-1">
+                     Edit
+                   </a>
+                   <a href="{% url 'task_management:task_delete' pk=task.pk %}"
+                      class="btn btn-sm btn-outline-danger">
+                     Delete
+                   </a>
                 {% endif %}
+
               </div>
             </div>
           </li>

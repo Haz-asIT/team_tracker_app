@@ -3,43 +3,41 @@
 {% block content %}
 <div class="container mt-5">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="mb-0">Audit Log</h1>
+    
+    {% if request.user.is_superuser %}
+        <h1 class="mb-0">
+            <i class="fas fa-shield-alt text-danger me-2"></i>Security Events Log
+        </h1>
+    {% elif request.user.person.role == "hr_admin" %}
+        <h1 class="mb-0">
+            <i class="fas fa-history text-info me-2"></i>Data Change Log
+        </h1>
+    {% else %}
+        <h1 class="mb-0">Audit Log</h1>
+    {% endif %}
 
-    <!-- Tabs -->
-    <ul class="nav nav-pills" id="auditTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-security-tab" data-bs-toggle="pill" data-bs-target="#tab-security" type="button" role="tab">
-          Security Events
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-changes-tab" data-bs-toggle="pill" data-bs-target="#tab-changes" type="button" role="tab">
-          Data Changes
-        </button>
-      </li>
-    </ul>
   </div>
 
-  <!-- Filter Bar -->
   <div class="card shadow-sm mb-4" style="border-radius: 12px;">
     <div class="card-body">
       <div class="row g-2 align-items-end">
-        <div class="col-md-2">
-          <label class="form-label small text-muted">Filter type</label>
-          <select class="form-select" id="filterType">
-            <option value="security" selected>Security events</option>
-            <option value="changes">Data changes</option>
-          </select>
+        
+        <div class="d-none">
+            {% if request.user.is_superuser %}
+                <input type="hidden" id="filterType" value="security">
+            {% elif request.user.person.role == "hr_admin"  %}
+                <input type="hidden" id="filterType" value="changes">
+            {% endif %}
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
           <label class="form-label small text-muted">Performed by</label>
           <input class="form-control" id="filterUser" placeholder="e.g. hariz" />
         </div>
 
-        <div class="col-md-3">
-          <label class="form-label small text-muted">Search (event/model/target)</label>
-          <input class="form-control" id="filterText" placeholder="e.g. LOGIN_FAILED / Person / user:ali" />
+        <div class="col-md-4">
+          <label class="form-label small text-muted">Search (action/model/target)</label>
+          <input class="form-control" id="filterText" placeholder="Search..." />
         </div>
 
         <div class="col-md-2">
@@ -59,14 +57,13 @@
     </div>
   </div>
 
-  <!-- Tab Contents -->
   <div class="tab-content" id="auditTabsContent">
-    <!-- Security Logs Tab         -->
+    
+    {% if request.user.is_superuser %}
     <div class="tab-pane fade show active" id="tab-security" role="tabpanel">
       <div class="table-responsive">
         <table class="table table-hover align-middle" id="tableSecurity">
-          <thead class="table-secondary">
-            <tr>
+          <thead class="table-danger"> <tr>
               <th style="width: 18%;">Date</th>
               <th style="width: 18%;">Event</th>
               <th style="width: 16%;">User ID</th>
@@ -88,18 +85,19 @@
                 <td class="text-muted small">{{ log.target|default:"-" }}</td>
               </tr>
             {% empty %}
-              <tr><td colspan="5" class="text-center text-muted py-4">No security logs available.</td></tr>
+              <tr><td colspan="5" class="text-center text-muted py-4">No security logs found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
-    <!-- Data Changes Tab          -->
-    <div class="tab-pane fade" id="tab-changes" role="tabpanel">
+    {% endif %}
+
+    {% if request.user.person.role == "hr_admin" %}
+    <div class="tab-pane fade show active" id="tab-changes" role="tabpanel">
       <div class="table-responsive">
         <table class="table table-hover align-middle" id="tableChanges">
-          <thead class="table-secondary">
-            <tr>
+          <thead class="table-info"> <tr>
               <th style="width: 22%;">Date</th>
               <th style="width: 26%;">User</th>
               <th style="width: 26%;">Model</th>
@@ -120,23 +118,27 @@
                   {% if entry.history_type == "+" %}
                     <span class="badge bg-success">Created</span>
                   {% elif entry.history_type == "~" %}
-                    <span class="badge bg-warning">Updated</span>
+                    <span class="badge bg-warning text-dark">Updated</span>
                   {% else %}
                     <span class="badge bg-danger">Deleted</span>
                   {% endif %}
                 </td>
               </tr>
             {% empty %}
-              <tr><td colspan="4" class="text-center text-muted py-4">No audit log entries available.</td></tr>
+              <tr><td colspan="4" class="text-center text-muted py-4">No data changes found.</td></tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
+    {% endif %}
+
   </div>
 </div>
+
 <script>
     (function () {
+      // Get Elements
       const filterType  = document.getElementById("filterType");
       const filterUser  = document.getElementById("filterUser");
       const filterText  = document.getElementById("filterText");
@@ -144,8 +146,7 @@
       const filterEnd   = document.getElementById("filterEnd");
       const btnReset    = document.getElementById("btnReset");
 
-      const tabSecurityBtn = document.getElementById("tab-security-tab");
-      const tabChangesBtn  = document.getElementById("tab-changes-tab");
+      // Note: We removed the Tab buttons from HTML, so we don't select them here.
 
       function inRange(rowDate, start, end) {
         if (!rowDate) return true;
@@ -155,7 +156,8 @@
       }
 
       function applyFilter() {
-        const type = filterType.value ; // security / changes
+        // Safe check: if filterType is missing (shouldn't happen), default to empty
+        const type = filterType ? filterType.value : ""; 
         const u = (filterUser.value || "").trim().toLowerCase();
         const t = (filterText.value || "").trim().toLowerCase();
         const s = filterStart.value || "";
@@ -167,6 +169,7 @@
           const rUser = row.dataset.user || "";
           const rText = (row.dataset.text || "").toLowerCase();
 
+          // Only show rows that match the HIDDEN filter type (security OR changes)
           const matchType = (rType === type);
           const matchUser = !u || rUser.includes(u);
           const matchText = !t || rText.includes(t);
@@ -176,46 +179,28 @@
         });
       }
 
-      function syncTabToFilterType() {
-        const type = filterType.value;
-        if (type === "security") tabSecurityBtn.click();
-        if (type === "changes") tabChangesBtn.click();
+      // We no longer need "syncTabToFilterType" because there are no tabs to click.
+      // The "filterType" is hardcoded in the HTML by Django.
+
+      // Attach Event Listeners
+      [filterUser, filterText, filterStart, filterEnd].forEach(el => {
+        if(el) { // Safety check
+            el.addEventListener("input", applyFilter);
+            el.addEventListener("change", applyFilter);
+        }
+      });
+
+      if(btnReset) {
+          btnReset.addEventListener("click", () => {
+            filterUser.value = "";
+            filterText.value = "";
+            filterStart.value = "";
+            filterEnd.value = "";
+            applyFilter();
+          });
       }
 
-      // Dropdown change -> switch tab + filter
-      filterType.addEventListener("change", () => {
-        syncTabToFilterType();
-        applyFilter();
-      });
-
-      // Tab click -> update dropdown + filter
-      tabSecurityBtn.addEventListener("click", () => {
-        filterType.value = "security";
-        applyFilter();
-      });
-
-      tabChangesBtn.addEventListener("click", () => {
-        filterType.value = "changes";
-        applyFilter();
-      });
-
-      [filterUser, filterText, filterStart, filterEnd].forEach(el => {
-        el.addEventListener("input", applyFilter);
-        el.addEventListener("change", applyFilter);
-      });
-
-      btnReset.addEventListener("click", () => {
-        filterType.value = "security";
-        filterUser.value = "";
-        filterText.value = "";
-        filterStart.value = "";
-        filterEnd.value = "";
-        syncTabToFilterType();
-        applyFilter();
-      });
-
-      // initial
-      syncTabToFilterType();
+      // Initial run
       applyFilter();
     })();
 </script>
