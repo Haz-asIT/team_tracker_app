@@ -81,7 +81,7 @@
                                     View
                                 </a>
 
-                                {% if request.user.person.role == "manager" %}
+                                {% if request.user.person.role == "Manager" %}
                                 <!-- Show Edit and Delete for Admin and Manager -->
                                 <a href="{% url 'task_management:task_update' pk=task.id %}" class="btn btn-sm btn-outline-secondary mx-1">
                                     Edit
@@ -101,7 +101,7 @@
     </div>
     {% endif %}
 <!-- Employees Section -->
-{% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" or person and person.role == "manager" %}
+{% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" or person and person.role == "Manager" %}
 <div class="card mb-4">
     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
         <div>
@@ -109,7 +109,7 @@
         </div>
 
         {# Add New: only System Admin or HR Admin #}
-        {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" %}
+        {% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" %}
             {% if perms.people_management.add_person %}
                 <a href="{% url 'people_management:create_new_person' %}" class="btn btn-outline-light btn-sm">
                     Add New
@@ -154,7 +154,7 @@
                                class="btn btn-sm btn-outline-secondary mx-1">View</a>
 
                             {# Edit/Delete: only System Admin or HR Admin #}
-                            {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" %}
+                            {% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" %}
                                 <a href="{% url 'people_management:update_person' pk=emp.id %}"
                                    class="btn btn-sm btn-outline-secondary mx-1">Edit</a>
 
@@ -174,7 +174,7 @@
 
 
     <!-- Contracts Section -->
-    {% if request.user.person.role == "manager" or request.user.is_staff %}
+    {% if request.user.person.role == "Manager" or request.user.is_staff %}
     <div class="card mb-4">
         <div class="card-header bg-light text-black d-flex justify-content-between align-items-center">
             <div>
@@ -216,7 +216,7 @@
                                     View
                                 </a>
 
-                                {# Edit/Delete: Admin only (NOT manager) #}
+                                {# Edit/Delete: Admin only (NOT Manager) #}
                                 {% if request.user.is_staff or request.user.is_superuser %}
                                     <a href="{% url 'people_management:update_contract' pk=contract.id %}"
                                     class="btn btn-sm btn-outline-secondary mx-1">

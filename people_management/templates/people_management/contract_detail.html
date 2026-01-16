@@ -35,7 +35,7 @@
                 </button>
 
                 {# Edit/Delete ONLY for System Admin OR HR Admin #}
-                {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" %}
+                {% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" %}
                     <a href="{% url 'people_management:update_contract' pk=contract.id %}"
                         class="btn btn-outline-secondary">
                         Edit

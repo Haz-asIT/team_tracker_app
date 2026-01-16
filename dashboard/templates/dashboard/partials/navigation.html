@@ -18,7 +18,7 @@
             </li>
 
             <!-- Admin-only: Activity Log -->
-            {% if request.user.is_authenticated and person and person.role == "hr_admin" %}
+            {% if request.user.is_authenticated and person and person.role == "HR Admin" %}
                 <li>
                     <a class="dropdown-item" href="{% url 'security:audit_log' %}">Activity Log</a>
                 </li>

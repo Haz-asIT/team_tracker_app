@@ -7,7 +7,7 @@
     <h2 class="mb-0">Task List</h2>
 
     {# Create Task Button: Visible to Admin, HR, AND Managers #}
-    {% if request.user.is_staff or request.user.is_superuser or person.role == "hr_admin" or person.role == "manager" %}
+    {% if request.user.is_staff or request.user.is_superuser or person.role == "HR Admin" or person.role == "Manager" %}
       <a href="{% url 'task_management:task_create' %}" class="btn btn-outline-dark btn-sm">
         + New Task
       </a>
@@ -53,7 +53,7 @@
 
                 {# EDIT/DELETE BUTTONS: Hidden from Employees #}
                 {# Only show if User is Admin, HR, or Manager #}
-                {% if request.user.is_superuser or person.role == "hr_admin" or person.role == "manager" %}
+                {% if request.user.is_superuser or person.role == "HR Admin" or person.role == "Manager" %}
                    <a href="{% url 'task_management:task_update' pk=task.pk %}"
                       class="btn btn-sm btn-outline-secondary mx-1">
                      Edit

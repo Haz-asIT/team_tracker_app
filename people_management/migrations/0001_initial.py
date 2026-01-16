@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="employee",
+                        related_name="Employee",
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),

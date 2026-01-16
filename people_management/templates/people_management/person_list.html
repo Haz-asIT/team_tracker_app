@@ -57,8 +57,8 @@
                         </div>
                     </div>
 
-                    {# ✅ Buttons hidden for manager #}
-                    {% if role != "manager" %}
+                    {# Buttons hidden for manager #}
+                    {% if role != "Manager" %}
                         <div class="row mt-2">
                             <div class="col text-end">
 
@@ -88,8 +88,8 @@
         </ul>
     </div>
 
-    {# ✅ Add New hidden for manager (and must be OUTSIDE the loop) #}
-    {% if role != "manager" and perms.people_management.add_person %}
+    {# Add New hidden for manager (and must be OUTSIDE the loop) #}
+    {% if role != "Manager" and perms.people_management.add_person %}
         <div class="mt-4 mb-4 text-end">
             <a href="{% url 'people_management:create_new_person' %}" class="btn btn-outline-dark">
                 Add New

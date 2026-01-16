@@ -12,7 +12,7 @@ class CustomUserCreationFormTests(TestCase):
             last_name="User",
             email="testuser@example.com",
             date_of_birth="1990-01-01",
-            role="employee"
+            role="Employee"
         )
 
     def test_valid_form_creates_user(self):

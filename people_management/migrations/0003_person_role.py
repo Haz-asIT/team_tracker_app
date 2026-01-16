@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
             name="role",
             field=models.CharField(
                 choices=[
-                    ("employee", "Employee"),
-                    ("manager", "Manager"),
-                    ("hr_admin", "HR Admin"),
+                    ("Employee", "Employee"),
+                    ("Manager", "Manager"),
+                    ("HR Admin", "HR Admin"),
                 ],
                 default="employee",
                 help_text="The role of the person in the company.",

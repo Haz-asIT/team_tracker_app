@@ -30,7 +30,7 @@
                                 <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
 
                                 <!-- Make first_name, last_name, role, and manager fields readonly instead of disabled -->
-                                {% if field.name == 'first_name' or field.name == 'last_name' or field.name == 'role' or field.name == 'manager' %}
+                                {% if field.name == 'first_name' or field.name == 'last_name' or field.name == 'role' or field.name == 'Manager' %}
                                     <!-- Readonly fields -->
                                     <input type="text" 
                                            class="form-control bg-light" 

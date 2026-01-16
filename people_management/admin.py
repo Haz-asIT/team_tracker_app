@@ -9,7 +9,7 @@ class PersonAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         if request.user.is_staff:
             return queryset  # Admin can see all employees
-        elif request.user.person and request.user.person.role == "manager":
+        elif request.user.person and request.user.person.role == "Manager":
             return queryset.filter(manager=request.user.person)  # Manager sees only their team members
         else:
             return queryset.filter(id=request.user.person.id)  # Employee sees only their own details
@@ -29,7 +29,7 @@ class ContractAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         if request.user.is_staff:
             return queryset  # Admin can see all contracts
-        elif request.user.person and request.user.person.role == "manager":
+        elif request.user.person and request.user.person.role == "Manager":
             return queryset.filter(person__manager=request.user.person)  # Manager sees only their team members' contracts
         else:
             return queryset.filter(person=request.user.person)  # Employee sees only their own contract

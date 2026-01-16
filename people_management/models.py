@@ -12,9 +12,10 @@ from django.utils import timezone
 class Person(models.Model):
     # Define role choices
     ROLE_CHOICES = [
-        ('employee', 'Employee'),
-        ('manager', 'Manager'),
-        ('hr_admin', 'HR Admin'),
+        ('Employee', 'Employee'),
+        ('Manager', 'Manager'),
+        ('HR Admin', 'HR Admin'),
+        ('System Admin', 'System Admin'),
         # Add any other roles here
     ]
 
@@ -33,7 +34,7 @@ class Person(models.Model):
 
     # Role field with predefined choices
     role = models.CharField(
-        max_length=10, choices=ROLE_CHOICES, default='employee', help_text="The role of the person in the company."
+        max_length=20, choices=ROLE_CHOICES, default='Employee', help_text="The role of the person in the company."
     )
 
     user = models.OneToOneField(
@@ -44,6 +45,7 @@ class Person(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
     def update_active_status(self):
         """
         Updates the `active` field based on active contracts.
@@ -63,13 +65,13 @@ class Person(models.Model):
 
 
     def is_admin(self):
-        return self.role == "hr_admin"
+        return self.role == "HR Admin"
 
     def is_manager(self):
-        return self.role == "manager"
+        return self.role == "Manager"
 
     def is_employee(self):
-        return self.role == "employee"
+        return self.role == "Employee"
 
     def can_edit(self, user):
         """

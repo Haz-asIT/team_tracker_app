@@ -18,7 +18,17 @@ class PersonForm(forms.ModelForm):
     email = forms.EmailField(validators=[EmailValidator()])
     phone_number = forms.CharField(
         max_length=15,
-        validators=[RegexValidator(r'^\+?\d{7,15}$', 'Enter a valid phone number.')]
+        validators=[RegexValidator(r'^\+?[\d\-\s]{7,20}$', 'Enter a valid phone number.')]
+    )
+    manager = forms.ModelChoiceField(
+        # detailed filter to catch strict lowercase OR capitalized versions
+        queryset=Person.objects.filter(role__in=[
+            'Manager', 'Manager',
+            'HR Admin', 'HR Admin'
+        ]),
+        required=False,
+        empty_label="---------",
+        widget=forms.Select(attrs={'class': 'form-select'})
     )
 
     class Meta:
@@ -41,7 +51,7 @@ class PersonForm(forms.ModelForm):
 
         self.fields["role"].required = True
         self.fields["manager"].queryset = Person.objects.filter(
-            role__in=["manager", "hr_admin"]
+            role__in=["Manager", "HR Admin"]
         )
         self.fields["manager"].required = False
 
@@ -79,8 +89,8 @@ class PersonForm(forms.ModelForm):
         return dob
 
     def clean_manager(self):
-        manager = self.cleaned_data.get("manager")
-        if manager and manager.role == "employee":
+        manager = self.cleaned_data.get("Manager")
+        if manager and manager.role == "Employee":
             raise ValidationError("An employee cannot be assigned as a manager.")
         return manager
 

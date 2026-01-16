@@ -11,10 +11,10 @@ def get_role(user):
     return person.role if person else None
 
 def is_hr_admin(user):
-    return user.is_staff or get_role(user) == "hr_admin"
+    return user.is_staff or get_role(user) == "HR Admin"
 
 def is_manager(user):
-    return get_role(user) == "manager"
+    return get_role(user) == "Manager"
 
 def is_employee(user):
-    return get_role(user) == "employee"
+    return get_role(user) == "Employee"

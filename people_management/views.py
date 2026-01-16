@@ -27,7 +27,7 @@ class ListPeople(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             return super().dispatch(request, *args, **kwargs)
 
         # HR admin + Manager allowed
-        if person and person.role in ["hr_admin", "manager"]:
+        if person and person.role in ["HR Admin", "Manager"]:
             return super().dispatch(request, *args, **kwargs)
 
         # Employee blocked
@@ -50,11 +50,11 @@ class ViewPersonDetails(LoginRequiredMixin, DetailView):
             raise PermissionDenied("No person profile linked.")
 
         # HR admin can view all
-        if viewer.role == "hr_admin":
+        if viewer.role == "HR Admin":
             return super().dispatch(request, *args, **kwargs)
 
         # Manager can view team under him
-        if viewer.role == "manager" and target.manager_id == viewer.id:
+        if viewer.role == "Manager" and target.manager_id == viewer.id:
             return super().dispatch(request, *args, **kwargs)
 
         # Employee can view only own profile (optional)
@@ -139,7 +139,7 @@ class FilteredContractListView(LoginRequiredMixin, PermissionRequiredMixin, Filt
             raise PermissionDenied("No profile.")
 
         # HR Admin + Manager can view contract list
-        if person.role in ["hr_admin", "manager"]:
+        if person.role in ["HR Admin", "Manager"]:
             return super().dispatch(request, *args, **kwargs)
 
         # Employee blocked
@@ -152,11 +152,11 @@ class FilteredContractListView(LoginRequiredMixin, PermissionRequiredMixin, Filt
         # System Admin / HR Admin see all
         if self.request.user.is_staff or self.request.user.is_superuser:
             return qs
-        if person and person.role == "hr_admin":
+        if person and person.role == "HR Admin":
             return qs
 
         # Manager sees only contracts of people they manage
-        if person and person.role == "manager":
+        if person and person.role == "Manager":
             return qs.filter(person__manager=person)
 
         return qs.none()
@@ -179,11 +179,11 @@ class ViewContractDetails(LoginRequiredMixin, DetailView):
             raise PermissionDenied("No person profile linked.")
 
         # HR admin can view all
-        if person.role == "hr_admin":
+        if person.role == "HR Admin":
             return super().dispatch(request, *args, **kwargs)
 
         # manager can view only contracts under his team
-        if person.role == "manager" and contract.person.manager_id == person.id:
+        if person.role == "Manager" and contract.person.manager_id == person.id:
             return super().dispatch(request, *args, **kwargs)
 
         raise PermissionDenied("You are not allowed to view this contract.")
@@ -201,7 +201,7 @@ class CreateNewContract(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         if request.user.is_staff or request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)
 
-        if person and person.role == "hr_admin":
+        if person and person.role == "HR Admin":
             return super().dispatch(request, *args, **kwargs)
 
         raise PermissionDenied("You are not allowed to create contracts.")
@@ -219,7 +219,7 @@ class UpdateContract(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         if request.user.is_staff or request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)
 
-        if person and person.role == "hr_admin":
+        if person and person.role == "HR Admin":
             return super().dispatch(request, *args, **kwargs)
 
         raise PermissionDenied("You are not allowed to update contracts.")
@@ -236,7 +236,7 @@ class DeleteContract(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         if request.user.is_staff or request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)
 
-        if person and person.role == "hr_admin":
+        if person and person.role == "HR Admin":
             return super().dispatch(request, *args, **kwargs)
 
         raise PermissionDenied("You are not allowed to delete contracts.")

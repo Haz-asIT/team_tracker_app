@@ -53,10 +53,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         if person:
             # Role-based filtering for people
-            if person.role == "hr_admin":
+            if person.role == "HR Admin":
                 # HR Admins see all employees
                 context["people"] = Person.objects.all()
-            elif person.role == "manager":
+            elif person.role == "Manager":
                 # Managers see only their assigned team members
                 context["people"] = Person.objects.filter(manager=person)
             else:
@@ -64,10 +64,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 context["people"] = None
 
             # Role-based filtering for contracts
-            if person.role == "hr_admin":
+            if person.role == "HR Admin":
                 # HR Admins see all contracts
                 context["contracts"] = Contract.objects.all()
-            elif person.role == "manager":
+            elif person.role == "Manager":
                 # Managers see contracts for their team members (assuming Contract has a ForeignKey to Person)
                 context["contracts"] = Contract.objects.filter(person__manager=person)
             else:
@@ -75,10 +75,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 context["contracts"] = None
 
             # Role-based filtering for tasks
-            if person.role == "hr_admin":
+            if person.role == "HR Admin":
                 # HR Admins see all tasks
                 context["tasks"] = Task.objects.all()
-            elif person.role == "manager":
+            elif person.role == "Manager":
                 # Managers see tasks for their team members (assuming Task has a ForeignKey to Person)
                 context["tasks"] = Task.objects.filter(assigned_to__manager=person)
             else:

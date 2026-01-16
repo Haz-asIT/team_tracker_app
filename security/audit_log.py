@@ -23,7 +23,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         """
         is_superuser = request.user.is_superuser
         # Safety check: ensure 'person' exists before checking role
-        is_hr_admin = hasattr(request.user, "person") and request.user.person.role == "hr_admin"
+        is_hr_admin = hasattr(request.user, "person") and request.user.person.role == "HR Admin"
 
         if not (is_superuser or is_hr_admin):
             # Optional: Log the failed attempt
@@ -38,7 +38,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Fetches history from Person, Contract, Task, and Group models.
         """
         # 1. Check if user is HR Admin
-        if hasattr(self.request.user, "person") and self.request.user.person.role == "hr_admin":
+        if hasattr(self.request.user, "person") and self.request.user.person.role == "HR Admin":
             
             # Fetch history from all tracked models
             person_history = Person.history.all()

@@ -66,11 +66,11 @@ class Migration(migrations.Migration):
                     "role",
                     models.CharField(
                         choices=[
-                            ("employee", "Employee"),
-                            ("manager", "Manager"),
-                            ("hr_admin", "HR Admin"),
+                            ("Employee", "Employee"),
+                            ("Manager", "Manager"),
+                            ("HR Admin", "HR Admin"),
                         ],
-                        default="employee",
+                        default="Employee",
                         help_text="The role of the person in the company.",
                         max_length=10,
                     ),

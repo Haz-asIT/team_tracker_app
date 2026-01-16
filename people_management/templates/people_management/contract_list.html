@@ -56,7 +56,7 @@
                         <div class="col text-end">
 
                             {# View allowed for: System Admin, HR Admin, Manager #}
-                            {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" or person and person.role == "manager" %}
+                            {% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" or person and person.role == "Manager" %}
                                 <a href="{% url 'people_management:contract_detail' pk=contract.id %}"
                                    class="btn btn-sm btn-outline-secondary mx-1">
                                     View
@@ -64,7 +64,7 @@
                             {% endif %}
 
                             {# Edit/Delete allowed ONLY for: System Admin, HR Admin #}
-                           {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" or person and person.role == "manager" %}
+                           {% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" or person and person.role == "Manager" %}
                                 <a href="{% url 'people_management:update_contract' pk=contract.id %}"
                                    class="btn btn-sm btn-outline-secondary mx-1">
                                     Edit
@@ -84,7 +84,7 @@
     </div>
 
     <!-- Add New Button (ROLE-based) -->
-    {% if request.user.is_staff or request.user.is_superuser or person and person.role == "hr_admin" or person and person.role == "manager" %}
+    {% if request.user.is_staff or request.user.is_superuser or person and person.role == "HR Admin" or person and person.role == "Manager" %}
                 <div class="mt-4 mb-4 d-flex justify-content-end">
             <a href="{% url 'people_management:create_contract' %}" class="btn btn-outline-dark">
             Add New
