@@ -65,13 +65,12 @@ Once running, the application can be accessed through a web browser using the lo
 All required Python libraries and frameworks for this project are listed in the requirements.txt file. These dependencies are installed using pip during the setup process.
 
 ## System Screenshots
-Login Page
+
 <h3>Login Page</h3>
 <p align="center">
   <img src="assets/login/1.PNG" width="700" />
 </p>
 
-Dashboard View
 <h3>Dashboard View</h3>
 <p align="center">
   <img src="assets/manager/6.PNG" width="700" />
