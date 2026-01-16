@@ -54,21 +54,23 @@ Follow the steps below to set up the project locally:
 ```bash
 pip install -r requirements.txt
 python manage.py migrate
+```
 
-##How to Run the Application
+## How to Run the Application 
 To start the development server, run the following command:
   python manage.py runserver
 Once running, the application can be accessed through a web browser using the local development address.
 
-##Dependencies
+## Dependencies
 All required Python libraries and frameworks for this project are listed in the requirements.txt file. These dependencies are installed using pip during the setup process.
 
-##System Screenshots
+## System Screenshots
 Login Page
 <h3>Login Page</h3>
 <p align="center">
   <img src="assets/login/1.png" width="700" />
 </p>
+
 Dashboard View
 <h3>Dashboard View</h3>
 <p align="center">
