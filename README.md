@@ -40,3 +40,14 @@ Configure environment variables using .env.example
 Run database migrations
 Start the development server
 
+## Wireframes
+
+<h3>Login Page</h3>
+<p align="center">
+  <img src="assets/login/1.png" width="700" />
+</p>
+
+<h3>Dashboard View</h3>
+<p align="center">
+  <img src="assets/manager/6.png" width="700" />
+</p>
