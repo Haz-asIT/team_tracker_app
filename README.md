@@ -44,10 +44,10 @@ Start the development server
 
 <h3>Login Page</h3>
 <p align="center">
-  <img src="assets/login/1.png" width="700" />
+  <img src="assets/login/1.PNG" width="700" />
 </p>
 
 <h3>Dashboard View</h3>
 <p align="center">
-  <img src="assets/manager/6.png" width="700" />
+  <img src="assets/manager/6.PNG" width="700" />
 </p>
